@@ -13,6 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "data" / "market_data.json"
+MASTERS_OUT = ROOT / "data" / "masters_analysis.json"
 TZ_TAIPEI = timezone(timedelta(hours=8))
 
 
@@ -46,6 +47,67 @@ def percentile(value, history):
         return None
     below = sum(item <= value for item in values)
     return round((below / len(values)) * 100, 1)
+
+
+def build_masters_analysis(output):
+    derived = output.get("derived", {})
+    percentiles = derived.get("percentiles_1y", {})
+    breadth = derived.get("taiwan_breadth", {})
+    vix_pct = percentiles.get("vix") or 50
+    rate_pct = percentiles.get("us10y") or 50
+    breadth_ratio = breadth.get("advance_ratio")
+    breadth_ratio = breadth_ratio if isinstance(breadth_ratio, (int, float)) else 50
+    taiwan_change = derived.get("taiwan_daily_change") or 0
+    risk = 0
+    risk += 25 if rate_pct >= 80 else 12 if rate_pct >= 60 else 0
+    risk += 25 if vix_pct >= 80 else 12 if vix_pct >= 60 else 0
+    risk += 25 if breadth_ratio < 40 else 12 if breadth_ratio < 50 else 0
+    risk += 25 if taiwan_change <= -2 else 12 if taiwan_change < 0 else 0
+    risk = min(100, risk)
+    defensive = risk >= 55
+    return {
+        "generated_at": output.get("updated_at"),
+        "disclaimer": "這是依公開投資思想建立的分析模型，不是本人觀點、真實引言或個別投資建議。",
+        "method": "固定規則先產生可驗證版本；未設定 GEMINI_API_KEY，因此不呼叫生成式 AI。",
+        "masters": [
+            {
+                "id": "value",
+                "name": "價值投資模型",
+                "based_on": "長期價值與安全邊際",
+                "attitude": "強烈防禦" if defensive and rate_pct >= 80 else "等待好價格",
+                "color": "red" if defensive else "yellow",
+                "focus": f"美國 10 年期利率歷史百分位：{rate_pct:.1f}%",
+                "comment": "當無風險利率偏高、資產價格也不便宜，先保留現金與短債，等待更好的買進價格。",
+            },
+            {
+                "id": "macro",
+                "name": "總經平衡模型",
+                "based_on": "成長、通膨與分散配置",
+                "attitude": "黃金與防守優先" if defensive else "維持分散配置",
+                "color": "red" if defensive else "green",
+                "focus": f"美股一起上漲比例：{breadth_ratio:.1f}%",
+                "comment": "當市場由少數股票支撐，就不把全部資金押在單一方向，優先保持不同資產的平衡。",
+            },
+            {
+                "id": "liquidity",
+                "name": "流動性轉折模型",
+                "based_on": "資金速度與市場內部強弱",
+                "attitude": "小心行情轉弱" if breadth_ratio < 45 or rate_pct >= 80 else "觀察中",
+                "color": "red" if breadth_ratio < 45 or rate_pct >= 80 else "yellow",
+                "focus": f"上漲股票比例：{breadth_ratio:.1f}%",
+                "comment": "不要只看指數。若一起上漲的股票變少，代表資金集中，市場轉弱時波動可能放大。",
+            },
+            {
+                "id": "credit",
+                "name": "信用週期模型",
+                "based_on": "信用風險與安全邊際",
+                "attitude": "防守第一" if vix_pct >= 70 or defensive else "保持警覺",
+                "color": "red" if vix_pct >= 70 or defensive else "yellow",
+                "focus": f"恐慌指數歷史百分位：{vix_pct:.1f}%",
+                "comment": "信用與波動率通常會先透露壓力；在市場還沒確認前，先降低追高與過度槓桿。",
+            },
+        ],
+    }
 
 
 def find_twse(rows, key, value):
@@ -142,6 +204,7 @@ def main():
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
+    MASTERS_OUT.write_text(json.dumps(build_masters_analysis(output), ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({"status": output["status"], "updated_at": now, "errors": errors}, ensure_ascii=False))
 
 
