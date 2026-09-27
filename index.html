@@ -151,6 +151,20 @@
     if (label) label.textContent = '風險分數（越高越危險）';
     if (scale) scale.textContent = '/ 100｜0=正常・100=最危險';
   }
+  const scoreHint = document.querySelector('.score-box small');
+  if (scoreHint) {
+    const hint = document.createElement('em');
+    hint.textContent = '（0=低・100=高）';
+    hint.style.display = 'block';
+    hint.style.fontStyle = 'normal';
+    hint.style.marginTop = '3px';
+    scoreHint.appendChild(hint);
+  }
+  const signalLabels = document.querySelectorAll('.signal label');
+  if (signalLabels[0]) signalLabels[0].textContent = '股票估值（越高越貴）';
+  if (signalLabels[1]) signalLabels[1].textContent = '公司獲利預期（越高越好）';
+  if (signalLabels[2]) signalLabels[2].textContent = '上漲股票比例（越高越健康）';
+  if (signalLabels[3]) signalLabels[3].textContent = '大型股與多數股票（越接近越健康）';
   allPanels.forEach(panel => {
     const heading = panel.querySelector('h2')?.textContent || '';
     if (heading.startsWith('第一關') || heading.startsWith('第二關') || heading.startsWith('第三關') || heading.startsWith('第四層')) {
