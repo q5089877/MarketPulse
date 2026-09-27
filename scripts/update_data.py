@@ -14,6 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "data" / "market_data.json"
 MASTERS_OUT = ROOT / "data" / "masters_analysis.json"
+SHARE_CARD_OUT = ROOT / "og-card.svg"
 TZ_TAIPEI = timezone(timedelta(hours=8))
 
 
@@ -69,6 +70,7 @@ def build_masters_analysis(output):
         "generated_at": output.get("updated_at"),
         "disclaimer": "這是依公開投資思想建立的分析模型，不是本人觀點、真實引言或個別投資建議。",
         "method": "固定規則先產生可驗證版本；未設定 GEMINI_API_KEY，因此不呼叫生成式 AI。",
+        "risk_score": risk,
         "masters": [
             {
                 "id": "value",
@@ -108,6 +110,35 @@ def build_masters_analysis(output):
             },
         ],
     }
+
+
+def write_share_card(output, analysis):
+    derived = output.get("derived", {})
+    percentiles = derived.get("percentiles_1y", {})
+    breadth = derived.get("taiwan_breadth", {}).get("advance_ratio")
+    breadth_text = f"{breadth:.1f}%" if isinstance(breadth, (int, float)) else "—"
+    risk = analysis.get("risk_score", "—")
+    risk_word = "高風險" if isinstance(risk, (int, float)) and risk >= 60 else "預警" if isinstance(risk, (int, float)) and risk >= 30 else "正常"
+    rate_pct = percentiles.get("us10y")
+    rate_text = f"{rate_pct:.1f}%" if isinstance(rate_pct, (int, float)) else "—"
+    generated = output.get("updated_at", "")[:10]
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07111f"/><stop offset="1" stop-color="#173253"/></linearGradient></defs>
+<rect width="1200" height="630" fill="url(#bg)"/><rect x="54" y="48" width="1092" height="534" rx="28" fill="#0d1b2c" stroke="#294563" stroke-width="2"/>
+<text x="92" y="112" fill="#54a8ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="24" font-weight="700">MARKETPULSE / 市場羅盤</text>
+<text x="92" y="178" fill="#edf4ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="48" font-weight="700">今天市場安不安全？</text>
+<text x="92" y="222" fill="#8fa4bb" font-family="Arial,'Noto Sans TC',sans-serif" font-size="22">公開資料每日更新｜{generated}</text>
+<rect x="92" y="278" width="300" height="168" rx="18" fill="#12243a" stroke="#203650"/>
+<text x="122" y="325" fill="#8fa4bb" font-family="Arial,'Noto Sans TC',sans-serif" font-size="20">台股風險分數</text>
+<text x="122" y="402" fill="#f4c95d" font-family="Arial,'Noto Sans TC',sans-serif" font-size="68" font-weight="700">{risk}<tspan font-size="28"> / 100</tspan></text>
+<text x="122" y="432" fill="#f4c95d" font-family="Arial,'Noto Sans TC',sans-serif" font-size="22">{risk_word}（越高越危險）</text>
+<text x="470" y="316" fill="#edf4ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="26" font-weight="700">今日快速判讀</text>
+<circle cx="492" cy="369" r="10" fill="#f4c95d"/><text x="520" y="378" fill="#edf4ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="25">經濟仍有力，但物價壓力偏高</text>
+<circle cx="492" cy="424" r="10" fill="#ff7180"/><text x="520" y="433" fill="#edf4ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="25">一起上漲的股票比例：{breadth_text}</text>
+<circle cx="492" cy="479" r="10" fill="#54a8ff"/><text x="520" y="488" fill="#edf4ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="25">10 年期利率百分位：{rate_text}</text>
+<text x="92" y="535" fill="#8fa4bb" font-family="Arial,'Noto Sans TC',sans-serif" font-size="18">股票　美債　黃金｜先看市場發生什麼，再決定如何配置</text>
+</svg>'''
+    SHARE_CARD_OUT.write_text(svg, encoding="utf-8")
 
 
 def find_twse(rows, key, value):
@@ -204,7 +235,9 @@ def main():
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
-    MASTERS_OUT.write_text(json.dumps(build_masters_analysis(output), ensure_ascii=False, indent=2), encoding="utf-8")
+    masters_analysis = build_masters_analysis(output)
+    MASTERS_OUT.write_text(json.dumps(masters_analysis, ensure_ascii=False, indent=2), encoding="utf-8")
+    write_share_card(output, masters_analysis)
     print(json.dumps({"status": output["status"], "updated_at": now, "errors": errors}, ensure_ascii=False))
 
 
