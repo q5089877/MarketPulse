@@ -42,6 +42,10 @@ def find_twse(rows, key, value):
     return next((row for row in rows if row.get(key) == value), None)
 
 
+def roc_date_to_gregorian(roc_date: str) -> str:
+    return f"{int(roc_date[:3]) + 1911}{roc_date[3:]}"
+
+
 def main():
     now = datetime.now(TZ_TAIPEI).isoformat()
     errors = []
@@ -60,18 +64,20 @@ def main():
         errors.append(f"TWSE index: {exc}")
 
     try:
-        breadth_rows = get_json("https://openapi.twse.com.tw/v1/opendata/twtazu_od")
-        breadth = find_twse(breadth_rows, "類型", "整體市場")
         index_date = output["market"].get("taiwan_index", {}).get("date")
-        breadth_date = breadth.get("出表日期") if breadth else None
+        report_date = roc_date_to_gregorian(index_date) if index_date else ""
+        report = get_json(f"https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&date={report_date}&type=MS")
+        breadth_table = next((table for table in report.get("tables", []) if table.get("title") == "漲跌證券數合計"), {})
+        breadth = {row[0]: row[1] for row in breadth_table.get("data", [])}
+        breadth_date = index_date
         output["market"]["taiwan_breadth"] = {
-            "data": breadth or {},
+            "data": breadth,
             "date": breadth_date,
-            "is_current": bool(index_date and breadth_date and index_date == breadth_date),
+            "is_current": bool(breadth),
         }
-        if breadth and index_date and breadth_date != index_date:
-            errors.append(f"TWSE breadth is stale: {breadth_date} vs index {index_date}")
-        output["sources"]["twse_breadth"] = "https://openapi.twse.com.tw/v1/opendata/twtazu_od"
+        output["sources"]["twse_breadth"] = "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=MS"
+        if not breadth:
+            errors.append(f"TWSE breadth unavailable for {report_date}")
     except Exception as exc:
         errors.append(f"TWSE breadth: {exc}")
 

@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-09-27T19:50:17.496174+08:00",
-  "status": "partial",
+  "updated_at": "2026-09-27T21:11:58.194896+08:00",
+  "status": "ok",
   "sources": {
     "twse": "https://openapi.twse.com.tw/",
-    "twse_breadth": "https://openapi.twse.com.tw/v1/opendata/twtazu_od",
+    "twse_breadth": "https://www.twse.com.tw/exchangeReport/MI_INDEX?response=json&type=MS",
     "sp500": "https://finance.yahoo.com/",
     "nasdaq": "https://finance.yahoo.com/",
     "vix": "https://finance.yahoo.com/",
@@ -19,18 +19,14 @@
     },
     "taiwan_breadth": {
       "data": {
-        "出表日期": "1150605",
-        "類型": "整體市場",
-        "上漲": "3144",
-        "漲停": "43",
-        "下跌": "9578",
-        "跌停": "355",
-        "持平": "459",
-        "未成交": "15058",
-        "無比價": "2520"
+        "上漲(漲停)": "4,581(67)",
+        "下跌(跌停)": "8,065(62)",
+        "持平": "1,107",
+        "未成交": "18,493",
+        "無比價": "3,359"
       },
-      "date": "1150605",
-      "is_current": false
+      "date": "1150924",
+      "is_current": true
     },
     "sp500": {
       "symbol": "^GSPC",
@@ -81,8 +77,5 @@
     "vix_status": "normal",
     "sp500_daily_change": 0.5098599586843957,
     "note": "Daily public-data snapshot. Yahoo Finance values may be delayed; verify before trading."
-  },
-  "errors": [
-    "TWSE breadth is stale: 1150605 vs index 1150924"
-  ]
+  }
 }
