@@ -1,0 +1,88 @@
+{
+  "updated_at": "2026-09-27T19:49:50.889646+08:00",
+  "status": "partial",
+  "sources": {
+    "twse": "https://openapi.twse.com.tw/",
+    "twse_breadth": "https://openapi.twse.com.tw/v1/opendata/twtazu_od",
+    "sp500": "https://finance.yahoo.com/",
+    "nasdaq": "https://finance.yahoo.com/",
+    "vix": "https://finance.yahoo.com/",
+    "us10y_proxy": "https://finance.yahoo.com/",
+    "gold": "https://finance.yahoo.com/",
+    "taiwan_index_market": "https://finance.yahoo.com/"
+  },
+  "market": {
+    "taiwan_index": {
+      "value": 48024.6,
+      "change_percent": -0.28,
+      "date": "1150924"
+    },
+    "taiwan_breadth": {
+      "data": {
+        "出表日期": "1150605",
+        "類型": "整體市場",
+        "上漲": "3144",
+        "漲停": "43",
+        "下跌": "9578",
+        "跌停": "355",
+        "持平": "459",
+        "未成交": "15058",
+        "無比價": "2520"
+      },
+      "date": "1150605",
+      "is_current": false
+    },
+    "sp500": {
+      "symbol": "^GSPC",
+      "currency": "USD",
+      "latest": 7743.41015625,
+      "previous": 7704.1298828125,
+      "as_of": "2026-09-25T21:30:00+08:00"
+    },
+    "nasdaq": {
+      "symbol": "^IXIC",
+      "currency": "USD",
+      "latest": 27068.720703125,
+      "previous": 26939.369140625,
+      "as_of": "2026-09-25T21:30:00+08:00"
+    },
+    "vix": {
+      "symbol": "^VIX",
+      "currency": "USD",
+      "latest": 14.869999885559082,
+      "previous": 15.670000076293945,
+      "as_of": "2026-09-25T15:00:00+08:00"
+    },
+    "us10y_proxy": {
+      "symbol": "^TNX",
+      "currency": "USD",
+      "latest": 5.184000015258789,
+      "previous": 5.1620001792907715,
+      "as_of": "2026-09-25T20:20:00+08:00"
+    },
+    "gold": {
+      "symbol": "GC=F",
+      "currency": "USD",
+      "latest": 4321.2001953125,
+      "previous": 4298.0,
+      "as_of": "2026-09-25T12:00:00+08:00"
+    },
+    "taiwan_index_market": {
+      "symbol": "^TWII",
+      "currency": "TWD",
+      "latest": 48024.6015625,
+      "previous": 48157.2890625,
+      "as_of": "2026-09-24T09:00:00+08:00"
+    }
+  },
+  "derived": {
+    "taiwan_daily_change": -0.28,
+    "vix_level": 14.869999885559082,
+    "vix_status": "normal",
+    "sp500_daily_change": 0.5098599586843957,
+    "note": "Daily public-data snapshot. Yahoo Finance values may be delayed; verify before trading."
+  },
+  "errors": [
+    "TWSE breadth is stale: 1150605 vs index 1150924"
+  ]
+}
