@@ -49,6 +49,36 @@
     const content={soft:['系統落點：成長↑・通膨↓ → 軟著陸','股票與長債相對有利；黃金維持分散配置。'],stag:['系統落點：成長↑・通膨↑ → 過熱','股票仍有獲利支撐，但資金成本與市場廣度使風險報酬變差。'],recession:['系統落點：成長↓・通膨↓ → 衰退','股票先承壓，利率下行有利高品質債券；黃金保留避險配置。'],stagflation:['系統落點：成長↓・通膨↑ → 滯脹','股票與長債可能同時承壓，黃金與現金的防守價值提高。']};
     document.querySelectorAll('[data-s]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-s]').forEach(x=>x.classList.remove('active'));b.classList.add('active');const [a,c]=content[b.dataset.s];document.getElementById('scenarioTitle').textContent=a;document.getElementById('scenarioText').textContent=c;}));
   </script>
+  <script>
+    async function loadLiveMarketData(){
+      try{
+        const response=await fetch('data/market_data.json?ts='+Date.now(),{cache:'no-store'});
+        if(!response.ok) throw new Error('資料讀取失敗');
+        const data=await response.json(), market=data.market||{}, derived=data.derived||{};
+        const format=(value,digits=2)=>typeof value==='number'?value.toFixed(digits):'—';
+        const updated=new Date(data.updated_at);
+        const stamp=document.querySelector('.stamp span');
+        if(stamp&&!Number.isNaN(updated.getTime())) stamp.textContent='資料更新：'+updated.toLocaleString('zh-TW',{dateStyle:'short',timeStyle:'short'});
+        const pill=document.querySelector('.pill');
+        if(pill) pill.innerHTML='<i class="dot"></i>公開資料・每日自動更新';
+        const metricBlocks=document.querySelectorAll('.metric-grid>div');
+        if(metricBlocks[0]&&market.us10y_proxy) metricBlocks[0].querySelector('b').textContent=format(market.us10y_proxy.latest)+'%';
+        const breadth=derived.taiwan_breadth||{};
+        const signal=Array.from(document.querySelectorAll('.signal')).find(item=>item.textContent.includes('上漲股票的比例'));
+        if(signal&&typeof breadth.advance_ratio==='number'){
+          signal.querySelector('i').style.width=breadth.advance_ratio+'%';
+          signal.querySelector('b').textContent=breadth.advance_ratio.toFixed(1)+'%';
+        }
+        const detail=document.querySelector('details p');
+        if(detail&&data.sources) detail.textContent='這些數據來自公開市場資料，百分位以近一年每日資料計算。更新時間：'+updated.toLocaleString('zh-TW')+'。不同市場收盤時間不同，資料可能有延遲，請勿只靠單一訊號交易。';
+      }catch(error){
+        const pill=document.querySelector('.pill');
+        if(pill) pill.innerHTML='<i class="dot" style="background:var(--yellow)"></i>資料暫時無法更新';
+        console.warn('MarketPulse data:',error);
+      }
+    }
+    loadLiveMarketData();
+  </script>
 <script>
   // 給一般使用者看的畫面優先使用白話中文；英文只留在程式內部，不擋住閱讀。
   const plainLabels = {

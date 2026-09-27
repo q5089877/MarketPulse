@@ -22,20 +22,30 @@ def get_json(url: str):
         return json.loads(response.read().decode("utf-8-sig"))
 
 
-def yahoo_chart(symbol: str):
-    query = urllib.parse.urlencode({"range": "5d", "interval": "1d", "events": "history"})
+def yahoo_chart(symbol: str, range_name: str = "5d"):
+    query = urllib.parse.urlencode({"range": range_name, "interval": "1d", "events": "history"})
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(symbol, safe='')}?{query}"
     payload = get_json(url)["chart"]["result"][0]
     meta = payload.get("meta", {})
     quotes = payload.get("indicators", {}).get("quote", [{}])[0]
     closes = [value for value in quotes.get("close", []) if value is not None]
+    history = [value for value in closes if isinstance(value, (int, float))]
     return {
         "symbol": symbol,
         "currency": meta.get("currency"),
         "latest": closes[-1] if closes else None,
         "previous": closes[-2] if len(closes) > 1 else None,
         "as_of": datetime.fromtimestamp(payload["timestamp"][-1], tz=timezone.utc).astimezone(TZ_TAIPEI).isoformat() if payload.get("timestamp") else None,
+        "history": history,
     }
+
+
+def percentile(value, history):
+    values = sorted(item for item in history if isinstance(item, (int, float)))
+    if value is None or not values:
+        return None
+    below = sum(item <= value for item in values)
+    return round((below / len(values)) * 100, 1)
 
 
 def find_twse(rows, key, value):
@@ -90,20 +100,40 @@ def main():
         "taiwan_index_market": "^TWII",
     }.items():
         try:
-            output["market"][label] = yahoo_chart(symbol)
+            output["market"][label] = yahoo_chart(symbol, "1y")
             output["sources"][label] = "https://finance.yahoo.com/"
         except Exception as exc:
             errors.append(f"Yahoo {symbol}: {exc}")
 
-    # Simple, transparent signals; later versions can replace these with history-based percentiles.
+    # Transparent history-based signals. Percentiles use the trailing one-year daily history.
     taiwan = output["market"].get("taiwan_index", {})
     vix = output["market"].get("vix", {}).get("latest")
     sp500 = output["market"].get("sp500", {})
+    us10y = output["market"].get("us10y_proxy", {})
+    gold = output["market"].get("gold", {})
+    breadth = output["market"].get("taiwan_breadth", {}).get("data", {})
+
+    def count_breadth(key):
+        raw = breadth.get(key, "0")
+        try:
+            return int(str(raw).split("(")[0].replace(",", ""))
+        except (ValueError, TypeError):
+            return 0
+
+    advancing = count_breadth("上漲(漲停)")
+    declining = count_breadth("下跌(跌停)")
+    breadth_total = advancing + declining
+    vix_pct = percentile(vix, output["market"].get("vix", {}).get("history", []))
+    us10y_pct = percentile(us10y.get("latest"), us10y.get("history", []))
+    gold_pct = percentile(gold.get("latest"), gold.get("history", []))
     output["derived"] = {
         "taiwan_daily_change": taiwan.get("change_percent"),
         "vix_level": vix,
         "vix_status": "high" if isinstance(vix, (int, float)) and vix >= 25 else "normal",
         "sp500_daily_change": (sp500.get("latest") - sp500.get("previous")) / sp500.get("previous") * 100 if sp500.get("latest") and sp500.get("previous") else None,
+        "percentiles_1y": {"vix": vix_pct, "us10y": us10y_pct, "gold": gold_pct},
+        "taiwan_breadth": {"advancing": advancing, "declining": declining, "advance_ratio": round(advancing / breadth_total * 100, 1) if breadth_total else None},
+        "data_window": "近一年每日資料",
         "note": "Daily public-data snapshot. Yahoo Finance values may be delayed; verify before trading.",
     }
     if errors:
