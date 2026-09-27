@@ -144,6 +144,13 @@
 <script>
   // 快讀模式：保留完整資料，但先收起重複或進階內容。
   const allPanels = Array.from(document.querySelectorAll('.panel'));
+  const riskScore = document.querySelector('.risk-score');
+  if (riskScore) {
+    const label = riskScore.querySelector('span');
+    const scale = riskScore.querySelector('small');
+    if (label) label.textContent = '風險分數（越高越危險）';
+    if (scale) scale.textContent = '/ 100｜0=正常・100=最危險';
+  }
   allPanels.forEach(panel => {
     const heading = panel.querySelector('h2')?.textContent || '';
     if (heading.startsWith('第一關') || heading.startsWith('第二關') || heading.startsWith('第三關') || heading.startsWith('第四層')) {
