@@ -8,12 +8,12 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content="MarketPulse｜今日市場羅盤" />
   <meta property="og:description" content="查看今日經濟位置、資產相對優勢與台股風險分數。" />
-  <meta property="og:image" content="https://q5089877.github.io/MarketPulse/og-card.svg" />
+  <meta property="og:image" content="https://q5089877.github.io/MarketPulse/og-card.png" />
   <meta property="og:url" content="https://q5089877.github.io/MarketPulse/" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="MarketPulse｜今日市場羅盤" />
   <meta name="twitter:description" content="查看今日經濟位置、資產相對優勢與台股風險分數。" />
-  <meta name="twitter:image" content="https://q5089877.github.io/MarketPulse/og-card.svg" />
+  <meta name="twitter:image" content="https://q5089877.github.io/MarketPulse/og-card.png" />
   <style>
     :root{--bg:#07111f;--panel:#0d1b2c;--panel2:#12243a;--line:#203650;--text:#edf4ff;--muted:#8fa4bb;--blue:#54a8ff;--green:#36d399;--yellow:#f4c95d;--red:#ff7180;--gold:#e8bd5a;--shadow:0 20px 50px rgba(0,0,0,.22)}
     *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 80% 0%,#173253 0,#07111f 38%);color:var(--text);font:15px/1.5 Inter,"Noto Sans TC",system-ui,sans-serif}
@@ -153,31 +153,6 @@
 </script>
 <script>
   // 快讀模式：保留完整資料，但先收起重複或進階內容。
-  const stamp = document.querySelector('.stamp');
-  if (stamp) {
-    const shareButton = document.createElement('button');
-    shareButton.className = 'share-button';
-    shareButton.textContent = '📸 分享今日圖卡';
-    shareButton.addEventListener('click', async () => {
-      try {
-        const response = await fetch('og-card.svg?ts=' + Date.now(), {cache:'no-store'});
-        const blob = await response.blob();
-        const file = new File([blob], 'MarketPulse_today.svg', {type:'image/svg+xml'});
-        if (navigator.share && navigator.canShare && navigator.canShare({files:[file]})) {
-          await navigator.share({title:'MarketPulse 今日市場羅盤', text:'查看今日市場狀態', files:[file]});
-        } else {
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(blob);
-          link.download = 'MarketPulse_today.svg';
-          link.click();
-          setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-        }
-      } catch (error) {
-        if (error.name !== 'AbortError') alert('圖卡產生失敗，請稍後再試。');
-      }
-    });
-    stamp.appendChild(shareButton);
-  }
   const allPanels = Array.from(document.querySelectorAll('.panel'));
   const riskScore = document.querySelector('.risk-score');
   if (riskScore) {

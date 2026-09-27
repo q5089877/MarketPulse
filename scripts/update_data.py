@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "data" / "market_data.json"
 MASTERS_OUT = ROOT / "data" / "masters_analysis.json"
 SHARE_CARD_OUT = ROOT / "og-card.svg"
+SHARE_CARD_PNG = ROOT / "og-card.png"
 TZ_TAIPEI = timezone(timedelta(hours=8))
 
 
@@ -119,6 +120,7 @@ def write_share_card(output, analysis):
     breadth_text = f"{breadth:.1f}%" if isinstance(breadth, (int, float)) else "—"
     risk = analysis.get("risk_score", "—")
     risk_word = "高風險" if isinstance(risk, (int, float)) and risk >= 60 else "預警" if isinstance(risk, (int, float)) and risk >= 30 else "正常"
+    risk_word_en = "HIGH RISK" if risk_word == "高風險" else "WARNING" if risk_word == "預警" else "NORMAL"
     rate_pct = percentiles.get("us10y")
     rate_text = f"{rate_pct:.1f}%" if isinstance(rate_pct, (int, float)) else "—"
     generated = output.get("updated_at", "")[:10]
@@ -139,6 +141,38 @@ def write_share_card(output, analysis):
 <text x="92" y="535" fill="#8fa4bb" font-family="Arial,'Noto Sans TC',sans-serif" font-size="18">股票　美債　黃金｜先看市場發生什麼，再決定如何配置</text>
 </svg>'''
     SHARE_CARD_OUT.write_text(svg, encoding="utf-8")
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+        font_paths = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "C:/Windows/Fonts/arial.ttf",
+        ]
+        font_path = next((path for path in font_paths if Path(path).exists()), None)
+        if not font_path:
+            raise RuntimeError("No share-card font available")
+        image = Image.new("RGB", (1200, 630), "#07111f")
+        draw = ImageDraw.Draw(image)
+        draw.rounded_rectangle((54, 48, 1146, 582), radius=28, fill="#0d1b2c", outline="#294563", width=2)
+        regular = lambda size: ImageFont.truetype(font_path, size)
+        bold = lambda size: ImageFont.truetype(font_path, size)
+        draw.text((92, 92), "MARKETPULSE / MARKET COMPASS", fill="#54a8ff", font=bold(24))
+        draw.text((92, 152), "TODAY MARKET STATUS", fill="#edf4ff", font=bold(48))
+        draw.text((92, 215), f"PUBLIC DATA UPDATED | {generated}", fill="#8fa4bb", font=regular(22))
+        draw.rounded_rectangle((92, 278, 392, 446), radius=18, fill="#12243a", outline="#203650")
+        draw.text((122, 318), "TAIWAN RISK SCORE", fill="#8fa4bb", font=regular(20))
+        draw.text((122, 370), f"{risk} / 100", fill="#f4c95d", font=bold(58))
+        draw.text((122, 426), f"{risk_word_en} | HIGHER = RISKIER", fill="#f4c95d", font=regular(18))
+        draw.text((470, 292), "QUICK READ", fill="#edf4ff", font=bold(26))
+        draw.ellipse((482, 351, 502, 371), fill="#f4c95d")
+        draw.text((520, 345), "Growth is firm, inflation pressure is high", fill="#edf4ff", font=regular(24))
+        draw.ellipse((482, 406, 502, 426), fill="#ff7180")
+        draw.text((520, 400), f"Stocks advancing together: {breadth_text}", fill="#edf4ff", font=regular(24))
+        draw.ellipse((482, 461, 502, 481), fill="#54a8ff")
+        draw.text((520, 455), f"10Y rate percentile: {rate_text}", fill="#edf4ff", font=regular(24))
+        draw.text((92, 530), "Stocks | Bonds | Gold | Understand the market before allocating", fill="#8fa4bb", font=regular(18))
+        image.save(SHARE_CARD_PNG, "PNG", optimize=True)
+    except Exception as exc:
+        print(f"Share card PNG skipped: {exc}")
 
 
 def find_twse(rows, key, value):
