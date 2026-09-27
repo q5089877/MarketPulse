@@ -47,5 +47,49 @@
     const content={soft:['系統落點：成長↑・通膨↓ → 軟著陸','股票與長債相對有利；黃金維持分散配置。'],stag:['系統落點：成長↑・通膨↑ → 過熱','股票仍有獲利支撐，但資金成本與市場廣度使風險報酬變差。'],recession:['系統落點：成長↓・通膨↓ → 衰退','股票先承壓，利率下行有利高品質債券；黃金保留避險配置。'],stagflation:['系統落點：成長↓・通膨↑ → 滯脹','股票與長債可能同時承壓，黃金與現金的防守價值提高。']};
     document.querySelectorAll('[data-s]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-s]').forEach(x=>x.classList.remove('active'));b.classList.add('active');const [a,c]=content[b.dataset.s];document.getElementById('scenarioTitle').textContent=a;document.getElementById('scenarioText').textContent=c;}));
   </script>
+<script>
+  // 給一般使用者看的畫面優先使用白話中文；英文只留在程式內部，不擋住閱讀。
+  const plainLabels = {
+    'MARKET COMPASS / 投資分析儀表板': '市場羅盤 / 投資分析儀表板',
+    'Leading｜前導': '第一階段｜外部先變化',
+    'Transmission｜傳導': '第二階段｜壓力傳進台股',
+    'Confirmation｜確認': '第三階段｜價格正式確認',
+    '美國 10Y／Real Yield': '美國 10 年期利率／扣除通膨後利率',
+    '美股 Market Breadth': '美股上漲範圍',
+    '台股 Market Breadth': '台股上漲範圍',
+    'IG／信用利差': '投資級公司債／信用利差',
+    'AI／資料中心': '人工智慧／資料中心融資',
+    '費半／NASDAQ': '費城半導體／那斯達克',
+    '加權指數 50MA／200MA': '加權指數 50 日／200 日均線',
+    'Taiwan VIX': '台股恐慌指數',
+    '大型權值股破位': '大型權值股跌破支撐',
+    'Level 高': '位置 高',
+    'Level 中': '位置 中',
+    'Level 弱': '位置 弱',
+    'Level 穩': '位置 穩',
+    'Level 正常': '位置 正常',
+    'Level 低': '位置 低',
+    'Velocity ↑': '速度 ↑',
+    'Velocity ↓': '速度 ↓',
+    'Velocity →': '速度 →',
+    'Persistence ': '持續 ',
+    '由 Growth Score × Inflation Score 自動落點': '由「經濟力道」與「物價壓力」自動判斷',
+    '成長↑・通膨↓': '經濟強・物價穩',
+    '成長↑・通膨↑': '經濟強・物價高',
+    '成長↓・通膨↓': '經濟弱・物價穩',
+    '成長↓・通膨↑': '經濟弱・物價高',
+    '大公司 vs 多數公司': '大型股與多數股票',
+    '示範資料・可接即時 API': '示範資料・可接即時資料',
+    'Growth Score = ISM + Payroll + Earnings revisions；Inflation Score = Core PCE + Breakeven + Wage growth。實務接入時應使用標準化 z-score、歷史百分位與固定更新頻率，不以人工選擇目前情境。': '經濟力道分數 = 製造業景氣 + 就業 + 企業獲利預估；物價壓力分數 = 核心物價指標 + 市場通膨預期 + 薪資增長。實際接入資料後，系統會依歷史百分位與變化速度自動判斷，不由人工選情境。'
+  };
+  const textNodes = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (textNodes.nextNode()) nodes.push(textNodes.currentNode);
+  nodes.forEach(node => {
+    node.nodeValue = Object.entries(plainLabels).reduce(
+      (text, [from, to]) => text.replaceAll(from, to), node.nodeValue
+    );
+  });
+</script>
 </body>
 </html>
