@@ -3,14 +3,14 @@
 <rect width="1200" height="630" fill="url(#bg)"/><rect x="54" y="48" width="1092" height="534" rx="28" fill="#0d1b2c" stroke="#294563" stroke-width="2"/>
 <text x="92" y="112" fill="#54a8ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="24" font-weight="700">MARKETPULSE / 市場羅盤</text>
 <text x="92" y="178" fill="#edf4ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="48" font-weight="700">今天市場安不安全？</text>
-<text x="92" y="222" fill="#8fa4bb" font-family="Arial,'Noto Sans TC',sans-serif" font-size="22">公開資料每日更新｜2026-10-01</text>
+<text x="92" y="222" fill="#8fa4bb" font-family="Arial,'Noto Sans TC',sans-serif" font-size="22">公開資料每日更新｜2026-10-02</text>
 <rect x="92" y="278" width="300" height="168" rx="18" fill="#12243a" stroke="#203650"/>
 <text x="122" y="325" fill="#8fa4bb" font-family="Arial,'Noto Sans TC',sans-serif" font-size="20">台股風險分數</text>
-<text x="122" y="402" fill="#f4c95d" font-family="Arial,'Noto Sans TC',sans-serif" font-size="68" font-weight="700">25<tspan font-size="28"> / 100</tspan></text>
-<text x="122" y="432" fill="#f4c95d" font-family="Arial,'Noto Sans TC',sans-serif" font-size="22">正常（越高越危險）</text>
+<text x="122" y="402" fill="#f4c95d" font-family="Arial,'Noto Sans TC',sans-serif" font-size="68" font-weight="700">37<tspan font-size="28"> / 100</tspan></text>
+<text x="122" y="432" fill="#f4c95d" font-family="Arial,'Noto Sans TC',sans-serif" font-size="22">預警（越高越危險）</text>
 <text x="470" y="316" fill="#edf4ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="26" font-weight="700">今日快速判讀</text>
 <circle cx="492" cy="369" r="10" fill="#f4c95d"/><text x="520" y="378" fill="#edf4ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="25">經濟仍有力，但物價壓力偏高</text>
-<circle cx="492" cy="424" r="10" fill="#ff7180"/><text x="520" y="433" fill="#edf4ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="25">一起上漲的股票比例：67.9%</text>
-<circle cx="492" cy="479" r="10" fill="#54a8ff"/><text x="520" y="488" fill="#edf4ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="25">10 年期利率百分位：99.6%</text>
+<circle cx="492" cy="424" r="10" fill="#ff7180"/><text x="520" y="433" fill="#edf4ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="25">一起上漲的股票比例：42.4%</text>
+<circle cx="492" cy="479" r="10" fill="#54a8ff"/><text x="520" y="488" fill="#edf4ff" font-family="Arial,'Noto Sans TC',sans-serif" font-size="25">10 年期利率百分位：99.2%</text>
 <text x="92" y="535" fill="#8fa4bb" font-family="Arial,'Noto Sans TC',sans-serif" font-size="18">股票　美債　黃金｜先看市場發生什麼，再決定如何配置</text>
 </svg>
